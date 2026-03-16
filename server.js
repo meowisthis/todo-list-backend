@@ -1,12 +1,14 @@
-require("dotenv").config()
-const express = require("express")
-const cors = require("cors")
-const { Pool } = require("pg")
+require("dotenv").config() // .env ใช้เพื่อเก็บsetting ค่าการเชื่อมDBไว้ในไฟล์ เพิ่มความปลอดภัย
+const express = require("express") // ใช้สร้าง API Server
+const cors = require("cors") // ตัวcrossเพื่อทำให้ frontend สามารถเรียกใช้งาน api backend ได้
+const { Pool } = require("pg") // ใช้pool เพราะว่าจะได้ไม่ต้องมีการconnect database ใหม่ทุกครั้งที่มี request มา
 
-const app = express()
-app.use(cors())
-app.use(express.json())
+const app = express() //สร้างตัวแปร app จาก express เพื่อใช้เป็นตัว API server
+app.use(cors()) //ใช้อนุญาติให้ตัวหน้าเว็บที่อยู่คนละ port สามารถใช้งาน api หลังบ้านได้
+app.use(express.json()) // ใช้เพื่อให้ backend อ่านข้อมูล JSON ที่ส่งมาจาก frontend ได้ 
+                        // โดยจะแปลง JSON ให้เป็น object เพื่อที่จะสามารถอ่านค่าในreq.body
 
+                        
 // Connect PostgreSQL
 const pool = new Pool({
   host: process.env.DB_HOST,
@@ -14,21 +16,16 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   port: process.env.DB_PORT,
-  /*สร้างไฟล์ .env ลงในโฟลเดอร์นี้
-  แล้วใส่โค้ดนี้ลงไปในไฟล์ .env
-  DB_HOST=localhost
-  DB_USER=postgres
-  DB_PASSWORD=2580
-  DB_NAME=todo_db
-  DB_PORT=5432*/
+
   
 })
 
 // ทดสอบเชื่อมต่อ DB
 pool.connect()
-  .then(() => console.log("✅ Connected to PostgreSQL"))
-  .catch(err => console.error("❌ Database connection error:", err))
+  .then(() => console.log("Connected to PostgreSQL"))
+  .catch(err => console.error("Database connection error:", err))
 
+//req.body คือ object ที่เก็บข้อมูลจาก frontend ที่ส่งมาใน request
 
 // GET all todos
 app.get("/todos", async (req, res) => {
@@ -82,7 +79,7 @@ app.put("/todos/:id", async (req, res) => {
   }
 })
 
-const PORT = 3000
+const PORT = 3000 //เปิดเซิฟเวอร์ให้รันอยู่ใน port 3000
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
